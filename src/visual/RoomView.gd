@@ -63,13 +63,17 @@ func _draw() -> void:
 		draw_rect(inner, ink, false, 3.0)
 
 	# A final row of alternating cells grounds the play area.
-	var floor_row := floori(_virtual_size.y / CELL) - 1
+	var floor_row := _bottom_decoration_row()
 	for column in floori(_virtual_size.x / CELL):
 		var floor_cell := Rect2(Vector2(column * CELL, floor_row * CELL), Vector2(CELL, CELL))
 		if column % 2 == 0:
 			draw_rect(floor_cell, paper, true)
 		draw_rect(floor_cell, paper, false, 3.0)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func bottom_decoration_rect() -> Rect2:
+	var virtual_rect := Rect2(Vector2(0.0, _bottom_decoration_row() * CELL), Vector2(_virtual_size.x, CELL))
+	return Rect2(_content_offset + virtual_rect.position * _content_scale, virtual_rect.size * _content_scale)
 
 func set_virtual_size(p_size: Vector2) -> void:
 	_virtual_size = Vector2(maxf(p_size.x, CELL * 12.0), maxf(p_size.y, CELL * 9.0))
@@ -119,6 +123,9 @@ func _compute_layout(level: Level) -> void:
 	var row_y := (memory_row + 0.5) * CELL
 	for i in count:
 		_tile_centers.append(Vector2((start_column + i + 0.5) * CELL, row_y))
+
+func _bottom_decoration_row() -> int:
+	return floori(_virtual_size.y / CELL) - 1
 
 # --- Static art ---------------------------------------------------------------
 

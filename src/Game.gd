@@ -29,6 +29,7 @@ const RESIZE_NONE := 0
 const RESIZE_PALETTE_SPLIT := 1
 const RESIZE_EDITOR_SPLIT := 2
 const RESIZE_ROOM_SPLIT := 3
+const WIN_BANNER_BOTTOM_GAP_RATIO := 0.20
 
 var _level: Level
 var _levels: Array[Level] = []
@@ -97,6 +98,9 @@ func _input(event: InputEvent) -> void:
 			if VisualTheme.adjust_user_ui_scale(-1):
 				_apply_ui_scale()
 			accept_event()
+		elif _is_show_hint_key(key):
+			_briefing.show_hint()
+			accept_event()
 
 # --- Construction -------------------------------------------------------------
 
@@ -125,9 +129,9 @@ func _build_panels() -> void:
 
 	_win_banner = Label.new()
 	_win_banner.text = "GREAT JOB!"
+	_win_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_win_banner.add_theme_color_override("font_color", Color.html("#FFE066"))
 	_win_banner.add_theme_color_override("font_outline_color", Color.html("#5A4A10"))
-	_win_banner.position = Vector2(120, 1200)
 	_win_banner.visible = false
 	add_child(_win_banner)
 	_apply_win_banner_scale()
@@ -197,6 +201,7 @@ func _layout_panels(viewport_size: Vector2) -> void:
 
 	_program_list.position = Vector2(editor_x, briefing_height + gap * 2.0)
 	_program_list.size = Vector2(editor_width, program_height)
+	_layout_win_banner()
 
 func _adaptive_column_widths(content_width: float) -> Array[float]:
 	var ui_scale := VisualTheme.effective_ui_scale()
@@ -271,6 +276,18 @@ func _apply_win_banner_scale() -> void:
 		return
 	VisualTheme.apply_font_size(_win_banner, 64, 24, 180)
 	_win_banner.add_theme_constant_override("outline_size", VisualTheme.scaled_int(8, 2, 28))
+	_layout_win_banner()
+
+func _layout_win_banner() -> void:
+	if _win_banner == null or _room == null:
+		return
+	var decoration_rect := _room.bottom_decoration_rect()
+	var banner_size := _win_banner.get_combined_minimum_size()
+	_win_banner.size = Vector2(decoration_rect.size.x, banner_size.y)
+	_win_banner.position = _room.position + Vector2(
+		decoration_rect.get_center().x - _win_banner.size.x * 0.5,
+		decoration_rect.position.y - _win_banner.size.y - decoration_rect.size.y * WIN_BANNER_BOTTOM_GAP_RATIO
+	)
 
 func _is_scale_up_key(key: InputEventKey) -> bool:
 	return (
@@ -281,6 +298,9 @@ func _is_scale_up_key(key: InputEventKey) -> bool:
 
 func _is_scale_down_key(key: InputEventKey) -> bool:
 	return key.unicode == 45 or _matches_key(key, [KEY_MINUS, KEY_KP_SUBTRACT])
+
+func _is_show_hint_key(key: InputEventKey) -> bool:
+	return key.shift_pressed and _matches_key(key, [KEY_H])
 
 func _matches_key(key: InputEventKey, codes: Array[int]) -> bool:
 	for code in codes:

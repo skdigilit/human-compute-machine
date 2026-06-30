@@ -22,6 +22,7 @@ func _run() -> void:
 		game._control_bar.position.y + game._control_bar.size.y + Game.PANEL_GAP
 	)
 	var room_has_outer_padding := game._room.position == Vector2(Game.PANEL_GAP, Game.PANEL_GAP)
+	var initial_banner_aligned := _banner_is_centered_above_bottom_decoration(game)
 
 	var grown_viewport := initial_viewport + Vector2(240, 160)
 	game._layout_panels(grown_viewport)
@@ -38,6 +39,7 @@ func _run() -> void:
 	var worker_position_kept := game._room.worker.position == initial_worker_position
 	var grown_no_overlap := _regions_do_not_overlap(game)
 	var grown_inside_viewport := _regions_inside_viewport(game, grown_viewport)
+	var grown_banner_aligned := _banner_is_centered_above_bottom_decoration(game)
 
 	var shrunk_viewport := initial_viewport - Vector2(0, 280)
 	game._layout_panels(shrunk_viewport)
@@ -52,34 +54,41 @@ func _run() -> void:
 	var worker_position_kept_after_shrink := game._room.worker.position == initial_worker_position
 	var shrunk_no_overlap := _regions_do_not_overlap(game)
 	var shrunk_inside_viewport := _regions_inside_viewport(game, shrunk_viewport)
+	var shrunk_banner_aligned := _banner_is_centered_above_bottom_decoration(game)
 	var passed := (
 		room_has_outer_padding
+		and initial_banner_aligned
 		and palette_resized
 		and briefing_resized
 		and controls_resized
 		and controls_reach_grown_bottom
 		and grown_no_overlap
 		and grown_inside_viewport
+		and grown_banner_aligned
 		and worker_position_kept
 		and room_height_can_shrink
 		and controls_reach_shrunk_bottom
 		and shrunk_no_overlap
 		and shrunk_inside_viewport
+		and shrunk_banner_aligned
 		and worker_position_kept_after_shrink
 	)
 	if not passed:
 		print("room_has_outer_padding=", room_has_outer_padding)
+		print("initial_banner_aligned=", initial_banner_aligned)
 		print("palette_resized=", palette_resized)
 		print("briefing_resized=", briefing_resized)
 		print("controls_resized=", controls_resized)
 		print("controls_reach_grown_bottom=", controls_reach_grown_bottom)
 		print("grown_no_overlap=", grown_no_overlap)
 		print("grown_inside_viewport=", grown_inside_viewport)
+		print("grown_banner_aligned=", grown_banner_aligned)
 		print("worker_position_kept=", worker_position_kept)
 		print("room_height_can_shrink=", room_height_can_shrink)
 		print("controls_reach_shrunk_bottom=", controls_reach_shrunk_bottom)
 		print("shrunk_no_overlap=", shrunk_no_overlap)
 		print("shrunk_inside_viewport=", shrunk_inside_viewport)
+		print("shrunk_banner_aligned=", shrunk_banner_aligned)
 		print("worker_position_kept_after_shrink=", worker_position_kept_after_shrink)
 
 	print("RESULT: ", "PASS" if passed else "FAIL")
@@ -112,3 +121,13 @@ func _regions_inside_viewport(game: Game, viewport_size: Vector2) -> bool:
 		if rect.end.x > viewport_size.x + 0.01 or rect.end.y > viewport_size.y + 0.01:
 			return false
 	return true
+
+func _banner_is_centered_above_bottom_decoration(game: Game) -> bool:
+	var decoration_rect := game._room.bottom_decoration_rect()
+	var decoration_global := Rect2(game._room.global_position + decoration_rect.position, decoration_rect.size)
+	var banner_rect := game._win_banner.get_global_rect()
+	return (
+		is_equal_approx(banner_rect.get_center().x, decoration_global.get_center().x)
+		and banner_rect.end.y <= decoration_global.position.y + 0.01
+		and banner_rect.position.y >= game._room.get_global_rect().position.y - 0.01
+	)

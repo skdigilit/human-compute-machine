@@ -8,7 +8,6 @@ signal previous_requested()
 signal next_requested()
 
 var _body: Label
-var _hint_button: Button
 var _problem_text: String = ""
 var _hint_text: String = ""
 
@@ -100,21 +99,10 @@ func set_level(level: Level, index: int = 0, total: int = 1) -> void:
 	scroll.add_child(body_width)
 	column.add_child(scroll)
 
-	_hint_button = _make_hint_button()
-	_hint_button.visible = not _hint_text.is_empty()
-	_hint_button.toggled.connect(_on_hint_toggled)
-	column.add_child(_hint_button)
-
-func _on_hint_toggled(show_hint: bool) -> void:
-	_body.text = _problem_text + ("\n\n" + _hint_text if show_hint else "")
-	_hint_button.text = "HIDE HINT" if show_hint else "SHOW HINT"
-	_hint_button.custom_minimum_size = VisualTheme.button_min_size(_hint_button.text, Vector2(0, 42), 18, 34.0)
-
-func _make_hint_button() -> Button:
-	var button := _make_nav_button("SHOW HINT")
-	button.toggle_mode = true
-	button.custom_minimum_size = VisualTheme.button_min_size(button.text, Vector2(0, 42), 18, 34.0)
-	return button
+func show_hint() -> void:
+	if _body == null or _hint_text.is_empty():
+		return
+	_body.text = _problem_text + "\n\n" + _hint_text
 
 func _make_nav_button(text: String) -> Button:
 	var button := Button.new()
