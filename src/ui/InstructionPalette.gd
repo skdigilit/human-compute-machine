@@ -39,5 +39,5 @@ func build(level: Level) -> void:
 
 	for op in level.palette:
 		var block := InstructionBlock.new(op, true)
-		block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		block.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		column.add_child(block)

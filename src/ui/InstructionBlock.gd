@@ -43,7 +43,7 @@ func _init(p_op: InstructionDef.Op, p_is_palette: bool, p_instruction: Instructi
 func _ready() -> void:
 	_apply_style()
 	custom_minimum_size = VisualTheme.scaled_size(Vector2(150, 0), Vector2(80, 0), Vector2(900, 0))
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	# Native hover tooltip explaining the command. The Viewport walks up from the
 	# hovered child (label / chip) to this block for the text, so one assignment
 	# covers the whole block.

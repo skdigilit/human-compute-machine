@@ -303,7 +303,7 @@ func _make_row(index: int, inst: Instruction) -> Control:
 	row.add_child(number)
 
 	var block := InstructionBlock.new(inst.op, false, inst)
-	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	block.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	block.set_memory_size(memory_size)
 	block.request_target_pick.connect(_on_cycle_target)
 	block.instruction_changed.connect(func() -> void: program_changed.emit())
